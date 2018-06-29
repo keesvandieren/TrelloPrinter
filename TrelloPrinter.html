@@ -96,88 +96,25 @@ Highlight Date </input><input type="date" id="highlightDate" />
 <div class="container-fluid">
 <div class="row col-md-12">
 {{#lists}}
-    <div id="{{id}}" style="page-break-after: always" {{#closed}}class="hidden"{{/closed}}{{^closed}}class="row"{{/closed}}>
-        <h3><strong><span class="glyphicon glyphicon-list-alt"></span> {{name}}</strong> <span class="no-print"><input type="checkbox" id="check-list-{{id}}" list-id="{{id}}" checked /></span></h3>
+    <h2>{{name}}</h2>
+    <table>
+            <thead>
+            <tr>
+            <th>User story</th>
+                <th>Story points</th>
+            </tr>
+            </thead>
+        <tbody>
         {{#cards}}
-            <div class="panel panel-default {{panelColor}}" style="page-break-inside: auto" id="{{id}}">
-                <div class="panel-heading">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <h4><a href="{{url}}" target="_blank"><span class="glyphicon glyphicon-file"></span> {{name}}</a> <span class="no-print"><input type="checkbox" id="check-card-{{id}}" card-list-id="{{idList}}" card-id="{{id}}" checked /></span></h4>
-                        </div>
-                        <div class="col-sm-4 text-center">
-                            {{^members}}<span class="hidden">{{/members}}<h4><span class="glyphicon glyphicon-user"></span> {{#members}}{{initials}} {{/members}}</h4>{{^members}}</span>{{/members}}
-                        </div>
-                        <div class="col-sm-4 text-right">
-                            {{^due}}<span class="hidden">{{/due}}<h4><span class="glyphicon glyphicon-time"></span> {{due}}</h4>{{^due}}</span>{{/due}}
-                        </div>
-                    </div>
-                    {{^descOrCoverImage}}
-                    <span class="hidden">
-                    {{/descOrCoverImage}}
-                    <hr />
-                    <div class="row">
-                        {{#urlCoverImage}}
-                        <div class="col-sm-3">
-                            <a href="{{urlCoverImage}}" target="_blank">
-                            <img src="{{urlCoverImage}}" width="300px" class="img-responsive img-thumbnail center-block" />
-                            </a>
-                        </div>
-                        <div class="col-sm-9">
-                        {{/urlCoverImage}}
-                        {{^urlCoverImage}}
-                        <div class="col-sm-12">
-                        {{/urlCoverImage}}
-                        {{{desc}}}
-                        </div>
-                    </div>
-                    {{^descOrCoverImage}}
-                    </span>
-                    {{/descOrCoverImage}}
-                </div>
-                {{^actions}}
-                <span class="hidden">
-                {{/actions}}
-                <ul class="list-group">
-                    {{#actions}}
-                        <li class="list-group-item action-item">
-							<tt style="color:gray;" class="action-title" action-date="{{dateRaw}}"><span class="glyphicon glyphicon-comment"></span> {{date}} ({{memberCreator}})</tt>
-						{{{text}}}</li>
-                    {{/actions}}
-                </ul>
-                {{^actions}}
-                </span>
-                {{/actions}}
-                {{^checklists}}
-                <span class="hidden">
-                {{/checklists}}
-                <ul class="list-group">
-                    {{#checklists}}
-                    <li class="list-group-item"><span class="glyphicon glyphicon-ok"></span> {{name}}</li>
-                        {{#checkItems}}
-                        <li class="list-group-item">{{#state}}<span class="glyphicon glyphicon-check"></span>{{/state}}{{^state}}<span class="glyphicon glyphicon-unchecked"></span>{{/state}} {{{name}}}</li>
-                        {{/checkItems}}
-                    {{/checklists}}
-                </ul>
-                {{^checklists}}
-                </span>
-                {{/checklists}}
-				{{^attachments}}
-                <span class="hidden">
-                {{/attachments}}
-                <ul class="list-group">
-                    {{#attachments}}
-                    <li class="list-group-item"><span class="glyphicon glyphicon-paperclip"></span> <a href="{{url}}" target="_blank">{{name}}</a></li>
-                    {{/attachments}}
-                </ul>
-                {{^attachments}}
-                </span>
-                {{/attachments}}
-            </div>
+            <tr>
+                <td>{{name}}</td>
+                <td>{{storyPoints}}</td>
+            </tr>
         {{/cards}}
+        </tbody>
+    </table>
     </div>
 {{/lists}}
-</div>
 </div>
 </script>
 
@@ -325,12 +262,27 @@ var sort_by = function(field, reverse, primer){
 			}
 		}
 
-		data.ref[card.id] = {
+        const pointsRegexp = /(\([0-9]+)\)/g;
+        let cardName = card.name;
+        const matches = cardName.match(pointsRegexp);
+
+        let storyPoints;
+
+        if (matches == null) {
+            storyPoints = "";
+        } else {
+            storyPoints = matches[0].substring(1, matches[0].length - 1);
+            cardName = cardName.substring(storyPoints.length + 3);
+        }
+
+        data.ref[card.id] = {
 								id: card.id
                                 ,
                                 idList: card.idList
                                 ,
-                                name: card.name
+                                name: cardName
+                                ,
+                                storyPoints: storyPoints
 								,
 								pos: card.pos
 								,
